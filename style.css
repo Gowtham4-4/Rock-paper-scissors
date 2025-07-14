@@ -1,0 +1,78 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f0f0f0;
+  text-align: center;
+  margin-top: 50px;
+}
+
+.game-container {
+  background: white;
+  padding: 30px;
+  margin: 0 auto;
+  width: 300px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  margin-bottom: 20px;
+}
+
+.score-board {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.buttons button {
+  margin: 10px;
+  padding: 10px 15px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+#result-message {
+  margin-top: 20px;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+#reset-btn {
+  margin-top: 20px;
+  padding: 8px 16px;
+  background: #ff5555;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.hands {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.hands img {
+  width: 100px;
+  margin: 0 15px;
+  transition: transform 0.3s ease;
+}
+
+.result-flash-win {
+  color: green;
+  animation: flash 0.5s ease;
+}
+
+.result-flash-lose {
+  color: red;
+  animation: flash 0.5s ease;
+}
+
+@keyframes flash {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+button:hover {
+  transform: scale(1.1);
+}

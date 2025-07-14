@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rock Paper Scissors - Animated</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f0f0f0;
+      padding: 20px;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    .scoreboard {
+      margin-bottom: 20px;
+      font-size: 1.2em;
+    }
+    .hands {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .hands img {
+      width: 100px;
+      margin: 0 15px;
+      transition: transform 0.3s ease;
+    }
+    .buttons button {
+      font-size: 16px;
+      margin: 5px;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 5px;
+      border: 1px solid #333;
+      background-color: white;
+      transition: transform 0.2s ease;
+    }
+    .buttons button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .buttons button:active:not(:disabled) {
+      transform: scale(1.1);
+    }
+    #result-message {
+      font-size: 1.4em;
+      margin-bottom: 15px;
+      min-height: 40px;
+      font-weight: bold;
+    }
+    #play-again {
+      font-size: 18px;
+      padding: 10px 30px;
+      display: none;
+      cursor: pointer;
+      border-radius: 6px;
+      border: none;
+      background-color: #4caf50;
+      color: white;
+      transition: background-color 0.3s ease;
+    }
+    #play-again:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h1>Rock Paper Scissors</h1>
+  <div class="scoreboard">
+    Player: <span id="player-score">0</span> | Computer: <span id="computer-score">0</span>
+  </div>
+
+  <div class="hands">
+    <img id="player-hand" src="rock.png" alt="Player hand" />
+    <img id="computer-hand" src="rock.png" alt="Computer hand" />
+  </div>
+
+  <div id="result-message">Make your move!</div>
+
+  <div class="buttons">
+    <button onclick="playRound('rock')">Rock</button>
+    <button onclick="playRound('paper')">Paper</button>
+    <button onclick="playRound('scissors')">Scissors</button>
+  </div>
+
+  <button id="play-again" onclick="resetGame()">Play Again</button>
+
+  <!-- Confetti library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    let playerScore = 0;
+    let computerScore = 0;
+    let countdownInterval;
+
+    function playRound(playerChoice) {
+      // Ignore clicks if game over or countdown running
+      if (playerScore === 5 || computerScore === 5 || countdownInterval) return;
+
+      let countdown = 3;
+      document.getElementById("result-message").textContent = "Ready... " + countdown;
+      disableButtons();
+
+      countdownInterval = setInterval(() => {
+        countdown--;
+        if (countdown > 0) {
+          document.getElementById("result-message").textContent = "Ready... " + countdown;
+        } else {
+          clearInterval(countdownInterval);
+          countdownInterval = null;
+          runRound(playerChoice);
+        }
+      }, 1000);
+    }
+
+    function runRound(playerChoice) {
+      const choices = ["rock", "paper", "scissors"];
+      const computerChoice = choices[Math.floor(Math.random() * 3)];
+
+      const playerHand = document.getElementById("player-hand");
+      const computerHand = document.getElementById("computer-hand");
+
+      // Reset hands to rock for shake animation
+      playerHand.src = "rock.png";
+      computerHand.src = "rock.png";
+
+      // Shake animation
+      playerHand.style.transform = "rotate(-20deg)";
+      computerHand.style.transform = "rotate(20deg)";
+
+      setTimeout(() => {
+        playerHand.style.transform = "rotate(0deg)";
+        computerHand.style.transform = "rotate(0deg)";
+
+        // Show choices
+        playerHand.src = playerChoice + ".png";
+        computerHand.src = computerChoice + ".png";
+
+        let result = "";
+
+        if (playerChoice === computerChoice) {
+          result = "It's a tie!";
+        } else if (
+          (playerChoice === "rock" && computerChoice === "scissors") ||
+          (playerChoice === "paper" && computerChoice === "rock") ||
+          (playerChoice === "scissors" && computerChoice === "paper")
+        ) {
+          playerScore++;
+          result = `You win! ${playerChoice} beats ${computerChoice}`;
+          animateResult("win");
+        } else {
+          computerScore++;
+          result = `You lose! ${computerChoice} beats ${playerChoice}`;
+          animateResult("lose");
+        }
+
+        document.getElementById("player-score").textContent = playerScore;
+        document.getElementById("computer-score").textContent = computerScore;
+        document.getElementById("result-message").textContent = result;
+
+        if (playerScore === 5 || computerScore === 5) {
+          const winner = playerScore === 5 ? "You won the game!" : "Computer wins the game!";
+          document.getElementById("result-message").textContent = winner;
+          disableButtons();
+          document.getElementById("play-again").style.display = "inline-block";
+
+          if (playerScore === 5) {
+            confetti({
+              particleCount: 150,
+              spread: 70,
+              origin: { y: 0.6 }
+            });
+          }
+        } else {
+          enableButtons();
+        }
+      }, 600);
+    }
+
+    function animateResult(type) {
+      const message = document.getElementById("result-message");
+      message.classList.remove("result-flash-win", "result-flash-lose");
+      void message.offsetWidth; // reflow for restart animation
+
+      if (type === "win") {
+        message.style.color = "green";
+      } else if (type === "lose") {
+        message.style.color = "red";
+      } else {
+        message.style.color = "black";
+      }
+    }
+
+    function disableButtons() {
+      document.querySelectorAll(".buttons button").forEach(btn => btn.disabled = true);
+    }
+
+    function enableButtons() {
+      document.querySelectorAll(".buttons button").forEach(btn => btn.disabled = false);
+    }
+
+    function resetGame() {
+      playerScore = 0;
+      computerScore = 0;
+      document.getElementById("player-score").textContent = "0";
+      document.getElementById("computer-score").textContent = "0";
+      document.getElementById("result-message").textContent = "Make your move!";
+      document.getElementById("player-hand").src = "rock.png";
+      document.getElementById("computer-hand").src = "rock.png";
+      document.getElementById("play-again").style.display = "none";
+      enableButtons();
+    }
+  </script>
+</body>
+</html>
